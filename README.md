@@ -34,7 +34,9 @@ Abra o navegador em:
 
 http://localhost:5173
 
-Rodando o Backend
+
+
+⚙️ Rodando o Backend
 
 Entre na pasta backend:
 
