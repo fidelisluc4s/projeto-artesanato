@@ -1,6 +1,7 @@
 import './App.css';
 import Header from './components/Header';
 import BannerCarousel from './components/BannerCarousel';
+import Footer from './components/Footer';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <p className="text-gray-600">Seu conteúdo vai aqui...</p>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }
