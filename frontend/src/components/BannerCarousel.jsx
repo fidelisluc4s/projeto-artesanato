@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 
 const BannerCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  
+
   // Dados de exemplo para os slides
   const slides = [
     {
       id: 1,
+      imageUrl: "../public/images/banner/img-banner-crian.jpg",
       title: "ARCHITEUR 4.5",
       subtitle: "Produtos de Qualidade",
       bgColor: "bg-amber-500",
@@ -15,6 +16,7 @@ const BannerCarousel = () => {
     },
     {
       id: 2,
+      imageUrl: "../public/images/banner/img-banner-cri.jpg",
       title: "RÉPONTOIRE",
       subtitle: "Soluções Inovadoras",
       bgColor: "bg-blue-600",
@@ -22,6 +24,7 @@ const BannerCarousel = () => {
     },
     {
       id: 3,
+      imageUrl: "../public/images/banner/img-banner-natal.png",
       title: "CHERIENNAUAGE",
       subtitle: "Experiência Premium",
       bgColor: "bg-emerald-600",
@@ -29,6 +32,7 @@ const BannerCarousel = () => {
     },
     {
       id: 4,
+      imageUrl: "../public/images/banner/img-banner-cri.jpg",
       title: "BEFORTSIE",
       subtitle: "Conforto e Estilo",
       bgColor: "bg-rose-600",
@@ -40,7 +44,7 @@ const BannerCarousel = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000); // Muda a cada 5 segundos
+    }, 10000); // Muda a cada 5 segundos
 
     return () => clearInterval(interval);
   }, [slides.length]);
@@ -60,23 +64,24 @@ const BannerCarousel = () => {
   return (
     <div className="relative w-full h-96 overflow-hidden">
       {/* Slides */}
-      <div 
+      <div
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentSlide * 100}%)` }}
       >
-        {slides.map((slide, index) => (
+        {slides.map((slide) => (
           <div
             key={slide.id}
-            className={`flex-shrink-0 w-full h-96 ${slide.bgColor} flex items-center justify-center`}
-          >
-            <div className="text-center">
-              <h2 className={`text-4xl md:text-6xl font-bold mb-4 ${slide.textColor}`}>
-                {slide.title}
-              </h2>
-              <p className={`text-xl md:text-2xl ${slide.textColor}`}>
-                {slide.subtitle}
-              </p>
-            </div>
+            className="flex-shrink-0 w-full h-96 relative">
+            {/* Imagem de fundo */}
+            <img
+              src={slide.imageUrl}
+              alt={slide.title}
+              className="w-full h-full object-fill absolute inset-0"
+              loading="lazy"
+            />
+            {/* Overlay para melhor legibilidade do texto */}
+            <div className="absolute inset-0 bg-black/30"></div>
+
           </div>
         ))}
       </div>
@@ -101,9 +106,8 @@ const BannerCarousel = () => {
           <button
             key={index}
             onClick={() => goToSlide(index)}
-            className={`w-3 h-3 rounded-full transition-all ${
-              index === currentSlide ? 'bg-white' : 'bg-white/50'
-            }`}
+            className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-white' : 'bg-white/50'
+              }`}
           />
         ))}
       </div>
