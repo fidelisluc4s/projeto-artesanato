@@ -1,6 +1,7 @@
 package com.artesanato.backend.security;
 
 import com.artesanato.backend.entity.Usuario;
+import com.artesanato.backend.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

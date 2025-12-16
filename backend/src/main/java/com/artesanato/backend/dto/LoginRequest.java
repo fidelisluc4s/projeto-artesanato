@@ -1,7 +1,6 @@
 // LoginRequest.java
 package com.artesanato.backend.dto;
 
-import com.artesanato.backend.dto.AuthRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -1,4 +1,3 @@
-// AuthTokenFilter.java
 package com.artesanato.backend.security;
 
 import jakarta.servlet.FilterChain;
@@ -50,7 +49,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
-            logger.error("Não foi possível autenticar o usuário: {}", e.getMessage());
+            logger.error("Não foi possível autenticar o usuário: {}");
         }
 
         filterChain.doFilter(request, response);
