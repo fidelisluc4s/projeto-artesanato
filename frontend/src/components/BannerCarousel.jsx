@@ -8,7 +8,7 @@ const BannerCarousel = () => {
   const slides = [
     {
       id: 1,
-      imageUrl: "../public/images/banner/img-banner-crian.jpg",
+      imageUrl: "../public/images/banner/img-banner-crianca.png",
       title: "ARCHITEUR 4.5",
       subtitle: "Produtos de Qualidade",
       bgColor: "bg-amber-500",
@@ -16,7 +16,7 @@ const BannerCarousel = () => {
     },
     {
       id: 2,
-      imageUrl: "../public/images/banner/img-banner-cri.jpg",
+      imageUrl: "../public/images/banner/img-banner-crianca.png",
       title: "RÉPONTOIRE",
       subtitle: "Soluções Inovadoras",
       bgColor: "bg-blue-600",
@@ -32,7 +32,7 @@ const BannerCarousel = () => {
     },
     {
       id: 4,
-      imageUrl: "../public/images/banner/img-banner-cri.jpg",
+      imageUrl: "../public/images/banner/img-banner-crianca.png",
       title: "BEFORTSIE",
       subtitle: "Conforto e Estilo",
       bgColor: "bg-rose-600",
