@@ -36,8 +36,10 @@ public class AuthService {
 
     @Transactional
     public JwtResponse registrar(RegistroRequest request) {
-        // REMOVA todos os System.out.println
-        // Mantenha apenas a lógica de negócio
+        System.out.println("=== REGISTRO INICIADO ===");
+        System.out.println("Nome: " + request.getNome());
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Tipo: " + request.getTipoUsuario());
 
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já está em uso!");
@@ -48,6 +50,7 @@ public class AuthService {
         usuario.setEmail(request.getEmail());
         usuario.setSenha(passwordEncoder.encode(request.getSenha()));
         usuario.setTipoUsuario(request.getTipoUsuario());
+        usuario.setAtivo(true); // IMPORTANTE!
 
         // Preenche campos específicos
         if (request.getTipoUsuario() == TipoUsuario.CLIENTE) {
@@ -61,13 +64,46 @@ public class AuthService {
                     request.getNivelAcesso() : 1);
         }
 
-        usuarioRepository.save(usuario);
+        // SALVAR
+        Usuario usuarioSalvo = usuarioRepository.save(usuario);
+        System.out.println("Usuário salvo com ID: " + usuarioSalvo.getId());
 
-        // Autentica o usuário automaticamente após registro
-        return login(new LoginRequest(request.getEmail(), request.getSenha()));
+        // FORÇAR FLUSH PARA BANCO
+        usuarioRepository.flush();
+
+        // VERIFICAR
+        Optional<Usuario> verificado = usuarioRepository.findById(usuarioSalvo.getId());
+        if (verificado.isPresent()) {
+            System.out.println("✓ Usuário persistido: " + verificado.get().getNome());
+        } else {
+            System.out.println("✗ ERRO: Usuário não persistido!");
+        }
+
+        System.out.println("=== REGISTRO FINALIZADO ===");
+
+        // Tenta fazer login
+        try {
+            return login(new LoginRequest(request.getEmail(), request.getSenha()));
+        } catch (Exception e) {
+            System.err.println("Erro no login após registro: " + e.getMessage());
+            throw e;
+        }
     }
 
     public JwtResponse login(LoginRequest request) {
+        System.out.println("=== LOGIN INICIADO ===");
+        System.out.println("Email: " + request.getEmail());
+
+        // Verifica se usuário existe antes de autenticar
+        Optional<Usuario> usuarioOpt = usuarioRepository.findByEmail(request.getEmail());
+        if (usuarioOpt.isEmpty()) {
+            System.out.println("✗ Usuário não encontrado no banco!");
+            throw new RuntimeException("Credenciais inválidas");
+        }
+
+        Usuario usuario = usuarioOpt.get();
+        System.out.println("✓ Usuário encontrado: " + usuario.getNome() + " (ID: " + usuario.getId() + ")");
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -79,6 +115,9 @@ public class AuthService {
         String jwt = jwtUtils.generateToken(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        System.out.println("✓ Token gerado para: " + userDetails.getNome());
+        System.out.println("=== LOGIN FINALIZADO ===");
 
         return new JwtResponse(
                 jwt,
