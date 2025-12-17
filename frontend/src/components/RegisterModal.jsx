@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Lock } from 'lucide-react';
+import { X, User, Mail, Lock, MapPin, Phone } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
@@ -7,7 +7,9 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    endereco: '',
+    telefone: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,7 +26,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
     e.preventDefault();
     setError('');
 
-    // Validações
+    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem');
       return;
@@ -32,6 +34,12 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
 
     if (formData.password.length < 6) {
       setError('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    // Validação de endereço (obrigatória pelo backend)
+    if (!formData.endereco.trim()) {
+      setError('Endereço é obrigatório');
       return;
     }
 
@@ -85,7 +93,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nome Completo
+                  Nome Completo *
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -103,7 +111,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  E-mail
+                  E-mail *
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -121,7 +129,48 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
 
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Senha
+                  Endereço *
+                </label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    name="endereco"
+                    value={formData.endereco}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    required
+                    placeholder="Rua, Número, Bairro, Cidade"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Para entrega dos produtos
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Telefone
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="tel"
+                    name="telefone"
+                    value={formData.telefone}
+                    onChange={handleChange}
+                    className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Para contato sobre pedidos
+                </p>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Senha *
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -133,13 +182,17 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     required
                     placeholder="••••••••"
+                    minLength="6"
                   />
                 </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Mínimo de 6 caracteres
+                </p>
               </div>
 
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirmar Senha
+                  Confirmar Senha *
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -151,6 +204,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
                     className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                     required
                     placeholder="••••••••"
+                    minLength="6"
                   />
                 </div>
               </div>
@@ -162,6 +216,12 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
               >
                 {loading ? 'Cadastrando...' : 'Criar Conta'}
               </button>
+
+              <div className="mt-4">
+                <p className="text-xs text-gray-500">
+                  * Campos obrigatórios
+                </p>
+              </div>
             </form>
 
             <div className="mt-6 text-center">
