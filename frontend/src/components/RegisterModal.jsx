@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, User, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
+const RegisterModal = ({ isOpen, onClose, onSwitchToLogin, onSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,6 +24,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     e.preventDefault();
     setError('');
 
+    // Validações
     if (formData.password !== formData.confirmPassword) {
       setError('As senhas não coincidem');
       return;
@@ -39,6 +40,9 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
     
     if (result.success) {
       onClose();
+      if (onSuccess) {
+        onSuccess();
+      }
     } else {
       setError(result.error || 'Erro ao cadastrar');
     }

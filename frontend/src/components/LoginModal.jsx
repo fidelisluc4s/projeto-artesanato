@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
-const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
+const LoginModal = ({ isOpen, onClose, onSwitchToRegister, onSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -15,13 +15,14 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     setLoading(true);
 
     const result = await login(email, password);
-    
+
     if (result.success) {
       onClose();
+      if (onSuccess) onSuccess(); // Chama callback de sucesso
     } else {
       setError(result.error || 'Erro ao fazer login');
     }
-    
+
     setLoading(false);
   };
 
@@ -30,7 +31,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   return (
     <div className="fixed inset-0 z-[100] overflow-y-auto">
       <div className="fixed inset-0 bg-black/60" onClick={onClose}></div>
-      
+
       <div className="flex min-h-full items-center justify-center p-4">
         <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
           <div className="bg-gradient-to-r from-amber-600 to-amber-700 p-6">

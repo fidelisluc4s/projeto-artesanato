@@ -1,6 +1,11 @@
-// src/components/Header.jsx (versão completa com login)
+// src/components/Header.jsx (versão completa com React Router)
 import React, { useState, useEffect, useRef } from 'react';
-import { ShoppingBag, BookOpen, Phone, User, Download, Menu, X, LogOut, Package, Heart, Settings, ShoppingCart } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { 
+  ShoppingBag, BookOpen, Phone, User, Download, 
+  Menu, X, LogOut, Package, Heart, Settings, 
+  ShoppingCart, Home, Grid, PlusCircle 
+} from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import LoginModal from './LoginModal';
 import RegisterModal from './RegisterModal';
@@ -12,6 +17,7 @@ const Header = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   
   const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
   const userMenuRef = useRef();
 
   const handleMinhaContaClick = (e) => {
@@ -20,7 +26,7 @@ const Header = () => {
       setShowUserMenu(!showUserMenu);
     } else {
       setIsLoginModalOpen(true);
-      setIsMobileMenuOpen(false); // Fecha menu mobile ao abrir modal
+      setIsMobileMenuOpen(false);
     }
   };
 
@@ -28,6 +34,17 @@ const Header = () => {
     logout();
     setShowUserMenu(false);
     setIsMobileMenuOpen(false);
+    navigate('/'); // Redireciona para home após logout
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoginModalOpen(false);
+    navigate('/dashboard'); // Redireciona para dashboard após login
+  };
+
+  const handleRegisterSuccess = () => {
+    setIsRegisterModalOpen(false);
+    navigate('/dashboard'); // Redireciona para dashboard após registro
   };
 
   // Fecha o menu dropdown ao clicar fora
@@ -47,21 +64,62 @@ const Header = () => {
       <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between py-4">
-            {/* Logo */}
-            <div className="flex items-center">
+            {/* Logo como Link para Home */}
+            <Link to="/" className="flex items-center hover:opacity-90 transition-opacity">
               <h1 className="text-2xl font-bold text-amber-100">Natalia Nascimento</h1>
-            </div>
+            </Link>
 
             {/* Menu de Navegação - Desktop */}
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#" className="hover:text-amber-200 transition-colors flex items-center">
+              <Link 
+                to="/" 
+                className="hover:text-amber-200 transition-colors flex items-center"
+                onClick={() => setShowUserMenu(false)}
+              >
+                <Home className="w-5 h-5 mr-1" />
+                Home
+              </Link>
+              
+              <Link 
+                to="/apostilas" 
+                className="hover:text-amber-200 transition-colors flex items-center"
+                onClick={() => setShowUserMenu(false)}
+              >
                 <BookOpen className="w-5 h-5 mr-1" />
                 Apostilas
-              </a>
-              <a href="#" className="hover:text-amber-200 transition-colors flex items-center">
+              </Link>
+              
+              <Link 
+                to="/contatos" 
+                className="hover:text-amber-200 transition-colors flex items-center"
+                onClick={() => setShowUserMenu(false)}
+              >
                 <Phone className="w-5 h-5 mr-1" />
                 Contatos
-              </a>
+              </Link>
+
+              {/* Links para área logada (só aparecem se autenticado) */}
+              {isAuthenticated && (
+                <>
+                  <Link 
+                    to="/dashboard" 
+                    className="hover:text-amber-200 transition-colors flex items-center"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <Grid className="w-5 h-5 mr-1" />
+                    Dashboard
+                  </Link>
+                  
+                  <Link 
+                    to="/meus-produtos" 
+                    className="hover:text-amber-200 transition-colors flex items-center"
+                    onClick={() => setShowUserMenu(false)}
+                  >
+                    <Package className="w-5 h-5 mr-1" />
+                    Meus Produtos
+                  </Link>
+                </>
+              )}
             </nav>
 
             {/* Menu do Usuário - Desktop */}
@@ -99,54 +157,65 @@ const Header = () => {
                       <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                     </div>
                     
-                    {/* Menu Items */}
+                    {/* Menu Items com React Router */}
                     <div className="py-1">
-                      <a 
-                        href="/perfil" 
+                      <Link 
+                        to="/dashboard" 
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
-                        <User className="w-4 h-4 mr-3" />
-                        Meu Perfil
-                      </a>
+                        <Grid className="w-4 h-4 mr-3" />
+                        Dashboard
+                      </Link>
                       
-                      <a 
-                        href="/downloads" 
+                      <Link 
+                        to="/meus-produtos" 
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Package className="w-4 h-4 mr-3" />
+                        Meus Produtos
+                      </Link>
+                      
+                      <Link 
+                        to="/novo-produto" 
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <PlusCircle className="w-4 h-4 mr-3" />
+                        Novo Produto
+                      </Link>
+                      
+                      <div className="border-t my-1"></div>
+                      
+                      <Link 
+                        to="/downloads" 
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Download className="w-4 h-4 mr-3" />
                         Meus Downloads
-                      </a>
+                      </Link>
                       
-                      <a 
-                        href="/pedidos" 
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <Package className="w-4 h-4 mr-3" />
-                        Meus Pedidos
-                      </a>
-                      
-                      <a 
-                        href="/favoritos" 
+                      <Link 
+                        to="/favoritos" 
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Heart className="w-4 h-4 mr-3" />
                         Favoritos
-                      </a>
+                      </Link>
                       
                       <div className="border-t my-1"></div>
                       
-                      <a 
-                        href="/configuracoes" 
+                      <Link 
+                        to="/configuracoes" 
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4 mr-3" />
                         Configurações
-                      </a>
+                      </Link>
                       
                       <button
                         onClick={handleLogout}
@@ -160,19 +229,39 @@ const Header = () => {
                 )}
               </div>
 
-              {/* Link Downloads */}
-              <a href="/downloads" className="hover:text-amber-200 transition-colors flex items-center">
+              {/* Link Downloads (sempre visível) */}
+              <Link 
+                to="/downloads" 
+                className="hover:text-amber-200 transition-colors flex items-center"
+                onClick={() => setShowUserMenu(false)}
+              >
                 <Download className="w-5 h-5 mr-1" />
                 Downloads
-              </a>
+              </Link>
+
+              {/* Botão Novo Produto (só aparece logado) */}
+              {isAuthenticated && (
+                <Link 
+                  to="/novo-produto" 
+                  className="hover:text-amber-200 transition-colors flex items-center bg-amber-500 hover:bg-amber-400 px-3 py-1 rounded-lg"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <PlusCircle className="w-5 h-5 mr-1" />
+                  Novo
+                </Link>
+              )}
 
               {/* Carrinho */}
-              <button className="hover:text-amber-200 transition-colors relative">
+              <Link 
+                to="/carrinho" 
+                className="hover:text-amber-200 transition-colors relative"
+                onClick={() => setShowUserMenu(false)}
+              >
                 <ShoppingCart className="w-5 h-5" />
                 <span className="absolute -top-2 -right-2 bg-amber-100 text-amber-700 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                   3
                 </span>
-              </button>
+              </Link>
             </div>
 
             {/* Botão Mobile */}
@@ -188,23 +277,65 @@ const Header = () => {
           {isMobileMenuOpen && (
             <div className="md:hidden bg-amber-700 py-4 border-t border-amber-600">
               <div className="flex flex-col space-y-3 px-4">
-                <a 
-                  href="#" 
+                {/* Links principais */}
+                <Link 
+                  to="/" 
+                  className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Home className="w-5 h-5 mr-3" />
+                  Home
+                </Link>
+                
+                <Link 
+                  to="/apostilas" 
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <BookOpen className="w-5 h-5 mr-3" />
                   Apostilas
-                </a>
+                </Link>
                 
-                <a 
-                  href="#" 
+                <Link 
+                  to="/contatos" 
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Phone className="w-5 h-5 mr-3" />
                   Contatos
-                </a>
+                </Link>
+
+                {/* Links da área logada */}
+                {isAuthenticated && (
+                  <>
+                    <Link 
+                      to="/dashboard" 
+                      className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Grid className="w-5 h-5 mr-3" />
+                      Dashboard
+                    </Link>
+                    
+                    <Link 
+                      to="/meus-produtos" 
+                      className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Package className="w-5 h-5 mr-3" />
+                      Meus Produtos
+                    </Link>
+                    
+                    <Link 
+                      to="/novo-produto" 
+                      className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <PlusCircle className="w-5 h-5 mr-3" />
+                      Novo Produto
+                    </Link>
+                  </>
+                )}
                 
                 {/* Minha Conta Mobile */}
                 <button
@@ -215,25 +346,25 @@ const Header = () => {
                   {isAuthenticated ? (
                     <span className="flex-1">
                       Olá, {user?.name?.split(' ')[0]}
-                      <span className="block text-xs text-amber-200">Ver minha conta</span>
+                      <span className="block text-xs text-amber-200">Minha Conta</span>
                     </span>
                   ) : (
                     'Minha conta'
                   )}
                 </button>
                 
-                <a 
-                  href="/downloads" 
+                <Link 
+                  to="/downloads" 
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Download className="w-5 h-5 mr-3" />
                   Downloads
-                </a>
+                </Link>
                 
                 {/* Carrinho Mobile */}
-                <a 
-                  href="/carrinho" 
+                <Link 
+                  to="/carrinho" 
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -242,7 +373,7 @@ const Header = () => {
                   <span className="ml-auto bg-amber-100 text-amber-700 text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     3
                   </span>
-                </a>
+                </Link>
                 
                 {/* Logout no mobile se estiver logado */}
                 {isAuthenticated && (
@@ -260,7 +391,7 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Modais de Login e Registro */}
+      {/* Modais de Login e Registro atualizados */}
       <LoginModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
@@ -268,6 +399,7 @@ const Header = () => {
           setIsLoginModalOpen(false);
           setIsRegisterModalOpen(true);
         }}
+        onSuccess={handleLoginSuccess} // Adicionado
       />
 
       <RegisterModal
@@ -277,6 +409,7 @@ const Header = () => {
           setIsRegisterModalOpen(false);
           setIsLoginModalOpen(true);
         }}
+        onSuccess={handleRegisterSuccess} // Adicionado
       />
     </>
   );
