@@ -1,14 +1,13 @@
-// LoginRequest.java
 package com.artesanato.backend.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class LoginRequest extends AuthRequest {
-    public LoginRequest(String email, String senha) {
-
-    }
-    // Pode adicionar campos específicos de login se necessário
+@NoArgsConstructor
+@AllArgsConstructor
+public class LoginRequest {
+    private String email;
+    private String senha;
 }

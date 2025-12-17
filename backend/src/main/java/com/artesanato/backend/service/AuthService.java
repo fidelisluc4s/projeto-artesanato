@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class AuthService {
 
@@ -34,19 +36,20 @@ public class AuthService {
 
     @Transactional
     public JwtResponse registrar(RegistroRequest request) {
-        // Verifica se email já existe
+        // REMOVA todos os System.out.println
+        // Mantenha apenas a lógica de negócio
+
         if (usuarioRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email já está em uso!");
         }
 
-        // Cria novo usuário
         Usuario usuario = new Usuario();
         usuario.setNome(request.getNome());
         usuario.setEmail(request.getEmail());
         usuario.setSenha(passwordEncoder.encode(request.getSenha()));
         usuario.setTipoUsuario(request.getTipoUsuario());
 
-        // Preenche campos específicos baseado no tipo
+        // Preenche campos específicos
         if (request.getTipoUsuario() == TipoUsuario.CLIENTE) {
             usuario.setEndereco(request.getEndereco());
             usuario.setTelefone(request.getTelefone());
