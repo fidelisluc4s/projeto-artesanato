@@ -62,14 +62,27 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/produtos/**").permitAll()
+                        // Endpoints PÚBLICOS de produtos (qualquer um pode ver)
+                        .requestMatchers("/api/produtos/ultimos-lancamentos").permitAll()
+                        .requestMatchers("/api/produtos").permitAll() // GET /api/produtos (listar todos)
+                        .requestMatchers("/api/produtos/categoria/**").permitAll()
+                        .requestMatchers("/api/produtos/{id}").permitAll() // GET por ID
 
-                        // Endpoints públicos
+                        // Endpoints de UPLOAD (imagens precisam ser públicas)
+                        .requestMatchers("/api/uploads/produto-imagem/**").permitAll() // ← ADICIONE ESTA LINHA
+
+                        // Endpoints de autenticação e testes
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
 
-                        // Todos os outros endpoints requerem autenticação
+                        // Todos os outros endpoints de produtos requerem autenticação
+                        .requestMatchers("/api/produtos/**").authenticated()
+
+                        // Endpoints de usuário
+                        .requestMatchers("/api/usuario/**").authenticated()
+
+                        // Qualquer outro endpoint requer autenticação
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
@@ -84,10 +97,27 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
+        configuration.setExposedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type"
+        ));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // 1 hora de cache
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
