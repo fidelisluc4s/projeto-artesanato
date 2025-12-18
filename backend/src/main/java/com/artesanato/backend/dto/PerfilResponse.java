@@ -1,6 +1,6 @@
 package com.artesanato.backend.dto;
 
-import com.artesanato.backend.entity.TipoUsuario;
+import com.artesanato.backend.entity.e.TipoUsuario;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

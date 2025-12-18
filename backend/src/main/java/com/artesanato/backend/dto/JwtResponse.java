@@ -1,7 +1,7 @@
 // JwtResponse.java
 package com.artesanato.backend.dto;
 
-import com.artesanato.backend.entity.TipoUsuario;
+import com.artesanato.backend.entity.e.TipoUsuario;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

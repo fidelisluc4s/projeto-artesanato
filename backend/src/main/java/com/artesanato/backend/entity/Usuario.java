@@ -1,5 +1,6 @@
 package com.artesanato.backend.entity;
 
+import com.artesanato.backend.entity.e.TipoUsuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

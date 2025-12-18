@@ -3,7 +3,7 @@ package com.artesanato.backend.service;
 import com.artesanato.backend.dto.JwtResponse;
 import com.artesanato.backend.dto.LoginRequest;
 import com.artesanato.backend.dto.RegistroRequest;
-import com.artesanato.backend.entity.TipoUsuario;
+import com.artesanato.backend.entity.e.TipoUsuario;
 import com.artesanato.backend.entity.Usuario;
 import com.artesanato.backend.repository.UsuarioRepository;
 import com.artesanato.backend.security.JwtUtils;

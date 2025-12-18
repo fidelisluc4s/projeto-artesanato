@@ -1,7 +1,7 @@
 package com.artesanato.backend.service;
 
 import com.artesanato.backend.dto.RegistroRequest;
-import com.artesanato.backend.entity.TipoUsuario;
+import com.artesanato.backend.entity.e.TipoUsuario;
 import org.springframework.stereotype.Service;
 
 @Service

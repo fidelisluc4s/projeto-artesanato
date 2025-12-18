@@ -1,4 +1,4 @@
-package com.artesanato.backend.entity;
+package com.artesanato.backend.entity.e;
 
 public enum TipoUsuario {
     ADMINISTRADOR,

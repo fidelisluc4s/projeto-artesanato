@@ -1,6 +1,6 @@
 package com.artesanato.backend.dto;
 
-import com.artesanato.backend.entity.TipoUsuario;
+import com.artesanato.backend.entity.e.TipoUsuario;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
