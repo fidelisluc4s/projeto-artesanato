@@ -1,3 +1,4 @@
+// src/pages/ProdutoForm.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
@@ -6,6 +7,7 @@ import {
   CheckCircle, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { produtoService, uploadService } from '../services/api';
 
 const ProdutoForm = () => {
   const { id } = useParams();
@@ -26,50 +28,68 @@ const ProdutoForm = () => {
   
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
   const [imagePreview, setImagePreview] = useState('');
 
-  // Categorias disponíveis
+  // Categorias compatíveis com o backend
   const categorias = [
-    'Apostilas Digitais',
-    'Caderno de Moldes', 
-    'Padrões de Crochê',
-    'Moldes de Costura',
-    'Artesanato em EVA',
-    'Pintura em Tecido',
-    'Bordado',
-    'Patchwork',
-    'Scrapbooking',
-    'Outros'
+    'APOSTILAS',
+    'MOLDES',
+    'BABY',
+    'KITS',
+    'ACESSORIOS',
+    'PERSONALIZADOS',
+    'OFERTAS'
   ];
 
-  // Se estiver editando, carrega os dados do produto
+  // Tradução das categorias para exibição
+  const categoriaLabels = {
+    'APOSTILAS': 'Apostilas Digitais',
+    'MOLDES': 'Caderno de Moldes',
+    'BABY': 'Produtos Baby',
+    'KITS': 'Kits Completos',
+    'ACESSORIOS': 'Acessórios',
+    'PERSONALIZADOS': 'Produtos Personalizados',
+    'OFERTAS': 'Ofertas Especiais'
+  };
+
+  // Carrega produto se estiver editando
   useEffect(() => {
     if (isEditing) {
-      setLoading(true);
-      
-      // Simulação de carregamento de API
-      setTimeout(() => {
-        const mockProduto = {
-          id: parseInt(id),
-          titulo: 'Caderno de Moldes - Bichinhos Safari',
-          descricao: 'Coleção completa de moldes de bichinhos do safari para diversos projetos criativos.',
-          categoria: 'Caderno de Moldes',
-          preco: 29.90,
-          emDestaque: true,
-          imagemUrl: 'https://images.unsplash.com/photo-1585821569331-f071db2abd6d?w=500',
-          quantidadeEstoque: 15
-        };
-        
-        setFormData(mockProduto);
-        setImagePreview(mockProduto.imagemUrl);
-        setLoading(false);
-      }, 1000);
+      carregarProduto();
     }
   }, [id, isEditing]);
 
-  // Atualiza preview da imagem quando URL muda
+  const carregarProduto = async () => {
+    setLoading(true);
+    try {
+      const produto = await produtoService.getProdutoById(id);
+      
+      setFormData({
+        titulo: produto.titulo,
+        descricao: produto.descricao || '',
+        categoria: produto.categoria,
+        preco: produto.preco.toString(),
+        emDestaque: produto.emDestaque || false,
+        imagemUrl: produto.imagemUrl || '',
+        quantidadeEstoque: produto.estoqueDisponivel || 0
+      });
+      
+      if (produto.imagemUrl) {
+        setImagePreview(produto.imagemUrl);
+      }
+      
+    } catch (error) {
+      console.error('Erro ao carregar produto:', error);
+      setErrors({ submit: 'Erro ao carregar produto. Tente novamente.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Atualiza preview da imagem
   useEffect(() => {
     if (formData.imagemUrl) {
       setImagePreview(formData.imagemUrl);
@@ -86,12 +106,10 @@ const ProdutoForm = () => {
               value
     }));
     
-    // Limpa erro do campo ao modificar
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
     
-    // Limpa mensagem de sucesso
     if (successMessage) {
       setSuccessMessage('');
     }
@@ -127,25 +145,63 @@ const ProdutoForm = () => {
     return newErrors;
   };
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validação básica da imagem
+    // Validação
     if (!file.type.startsWith('image/')) {
       setErrors(prev => ({ ...prev, imagemUrl: 'Por favor, selecione uma imagem' }));
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) { // 5MB
+    if (file.size > 5 * 1024 * 1024) {
       setErrors(prev => ({ ...prev, imagemUrl: 'Imagem muito grande (máximo 5MB)' }));
       return;
     }
 
-    // Cria URL temporária para preview
-    const imageUrl = URL.createObjectURL(file);
-    setImagePreview(imageUrl);
-    setFormData(prev => ({ ...prev, imagemUrl: imageUrl }));
+    try {
+      // Preview local
+      const localUrl = URL.createObjectURL(file);
+      setImagePreview(localUrl);
+      
+      setErrors(prev => ({ ...prev, imagemUrl: '' }));
+      setUploading(true);
+      
+      // Upload para servidor
+      const uploadResult = await uploadService.uploadProdutoImagem(file);
+      
+      // Atualiza form com URL do servidor
+      setFormData(prev => ({ 
+        ...prev, 
+        imagemUrl: uploadResult.url
+      }));
+      
+      // Atualiza preview com URL real
+      setImagePreview(uploadResult.url);
+      
+      // Libera URL local
+      URL.revokeObjectURL(localUrl);
+      
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      
+      let errorMessage = 'Erro ao fazer upload da imagem';
+      
+      if (error.response?.status === 401) {
+        errorMessage = 'Sessão expirada. Faça login novamente.';
+      } else if (error.response?.status === 400) {
+        errorMessage = error.response.data || 'Imagem inválida';
+      }
+      
+      setErrors(prev => ({ 
+        ...prev, 
+        imagemUrl: errorMessage 
+      }));
+      setImagePreview('');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -154,14 +210,6 @@ const ProdutoForm = () => {
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
-      
-      // Rola para o primeiro erro
-      const firstError = Object.keys(validationErrors)[0];
-      document.querySelector(`[name="${firstError}"]`)?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-      
       return;
     }
     
@@ -169,24 +217,25 @@ const ProdutoForm = () => {
     setErrors({});
     
     try {
-      // TODO: Substituir por chamada real à API
-      console.log('Enviando produto:', {
-        ...formData,
-        usuarioId: user?.id,
-        dataCriacao: new Date().toISOString()
-      });
+      // Prepara dados do produto
+      const produtoData = {
+        titulo: formData.titulo,
+        descricao: formData.descricao,
+        categoria: formData.categoria,
+        preco: parseFloat(formData.preco),
+        imagemUrl: formData.imagemUrl || '',
+        emDestaque: formData.emDestaque || false,
+        estoqueDisponivel: formData.quantidadeEstoque || 0
+      };
       
-      // Simulação de API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setSuccessMessage(
-        isEditing 
-          ? 'Produto atualizado com sucesso!'
-          : 'Produto criado com sucesso!'
-      );
-      
-      // Limpa formulário se for criação
-      if (!isEditing) {
+      if (isEditing) {
+        await produtoService.atualizarProduto(id, produtoData);
+        setSuccessMessage('Produto atualizado com sucesso!');
+      } else {
+        await produtoService.criarProduto(produtoData);
+        setSuccessMessage('Produto criado com sucesso!');
+        
+        // Limpa formulário
         setFormData({
           titulo: '',
           descricao: '',
@@ -206,7 +255,17 @@ const ProdutoForm = () => {
       
     } catch (error) {
       console.error('Erro ao salvar produto:', error);
-      setErrors({ submit: 'Erro ao salvar produto. Tente novamente.' });
+      
+      if (error.response?.status === 400) {
+        setErrors({ submit: error.response.data?.message || 'Dados inválidos' });
+      } else if (error.response?.status === 401) {
+        setErrors({ submit: 'Sessão expirada. Faça login novamente.' });
+        setTimeout(() => navigate('/'), 2000);
+      } else if (error.response?.status === 403) {
+        setErrors({ submit: 'Você não tem permissão para modificar este produto' });
+      } else {
+        setErrors({ submit: 'Erro ao salvar produto. Tente novamente.' });
+      }
     } finally {
       setSaving(false);
     }
@@ -224,6 +283,24 @@ const ProdutoForm = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Carregando produto...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Acesso Restrito</h2>
+          <p className="text-gray-600 mb-6">Você precisa estar logado para cadastrar produtos.</p>
+          <Link 
+            to="/" 
+            className="inline-block bg-amber-600 text-white px-6 py-3 rounded-lg hover:bg-amber-700 transition-colors"
+          >
+            Voltar para Home
+          </Link>
         </div>
       </div>
     );
@@ -275,7 +352,7 @@ const ProdutoForm = () => {
           </div>
         </div>
 
-        {/* Mensagens de Sucesso/Erro */}
+        {/* Mensagens */}
         {successMessage && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
             <CheckCircle className="w-5 h-5 text-green-600 mr-3" />
@@ -295,7 +372,7 @@ const ProdutoForm = () => {
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
           <form onSubmit={handleSubmit}>
             <div className="p-8">
-              {/* Seção 1: Informações Básicas */}
+              {/* Informações Básicas */}
               <div className="mb-10">
                 <div className="flex items-center mb-6">
                   <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center mr-3">
@@ -352,7 +429,9 @@ const ProdutoForm = () => {
                       >
                         <option value="">Selecione uma categoria</option>
                         {categorias.map((cat, index) => (
-                          <option key={index} value={cat}>{cat}</option>
+                          <option key={index} value={cat}>
+                            {categoriaLabels[cat] || cat}
+                          </option>
                         ))}
                       </select>
                       <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -382,7 +461,7 @@ const ProdutoForm = () => {
                       className={`w-full px-4 py-3 pl-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none ${
                         errors.descricao ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="Descreva seu produto detalhadamente. Inclua materiais necessários, técnicas utilizadas, público-alvo, etc."
+                      placeholder="Descreva seu produto detalhadamente..."
                       maxLength={2000}
                     />
                     <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -400,7 +479,7 @@ const ProdutoForm = () => {
                 </div>
               </div>
 
-              {/* Seção 2: Preço e Estoque */}
+              {/* Preço e Estoque */}
               <div className="mb-10">
                 <div className="flex items-center mb-6">
                   <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center mr-3">
@@ -439,7 +518,7 @@ const ProdutoForm = () => {
                     )}
                   </div>
 
-                  {/* Quantidade em Estoque */}
+                  {/* Estoque */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Estoque Disponível
@@ -478,14 +557,14 @@ const ProdutoForm = () => {
                         </span>
                       </div>
                       <p className="text-sm text-gray-500 mt-1">
-                        Produtos em destaque aparecem na seção "Últimos Lançamentos" da página inicial
+                        Produtos em destaque aparecem na seção "Últimos Lançamentos"
                       </p>
                     </div>
                   </label>
                 </div>
               </div>
 
-              {/* Seção 3: Imagem do Produto */}
+              {/* Imagem do Produto */}
               <div className="mb-10">
                 <div className="flex items-center mb-6">
                   <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center mr-3">
@@ -495,7 +574,7 @@ const ProdutoForm = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Upload de Imagem */}
+                  {/* Upload */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       URL da Imagem
@@ -506,15 +585,19 @@ const ProdutoForm = () => {
                         name="imagemUrl"
                         value={formData.imagemUrl}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 ${
+                          errors.imagemUrl ? 'border-red-500' : 'border-gray-300'
+                        }`}
                         placeholder="https://exemplo.com/imagem.jpg"
                       />
                     </div>
-                    <p className="text-sm text-gray-500 mt-1">Cole a URL de uma imagem online</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Cole uma URL de imagem ou faça upload
+                    </p>
                     
                     <div className="mt-4">
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Ou faça upload
+                        Faça upload
                       </label>
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-amber-400 transition-colors cursor-pointer">
                         <input
@@ -523,19 +606,30 @@ const ProdutoForm = () => {
                           onChange={handleImageUpload}
                           className="hidden"
                           id="image-upload"
+                          disabled={uploading || saving}
                         />
-                        <label htmlFor="image-upload" className="cursor-pointer">
-                          <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-600 font-medium">Clique para fazer upload</p>
-                          <p className="text-sm text-gray-500 mt-1">
-                            PNG, JPG, GIF até 5MB
-                          </p>
-                        </label>
+                        
+                        {uploading ? (
+                          <div>
+                            <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-600 rounded-full animate-spin mx-auto mb-4"></div>
+                            <p className="text-gray-600 font-medium">Enviando imagem...</p>
+                          </div>
+                        ) : (
+                          <label htmlFor="image-upload" className="cursor-pointer">
+                            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-600 font-medium">
+                              Clique para fazer upload
+                            </p>
+                            <p className="text-sm text-gray-500 mt-1">
+                              PNG, JPG, GIF até 5MB
+                            </p>
+                          </label>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Preview da Imagem */}
+                  {/* Preview */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Preview da Imagem
@@ -547,38 +641,29 @@ const ProdutoForm = () => {
                             src={imagePreview}
                             alt="Preview do produto"
                             className="w-full h-full object-contain p-4"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src = '';
-                              setImagePreview('');
-                            }}
+                            onError={() => setImagePreview('')}
                           />
                         ) : (
                           <div className="text-center p-8">
                             <ImageIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500">Nenhuma imagem selecionada</p>
+                            <p className="text-gray-500">Nenhuma imagem</p>
                             <p className="text-sm text-gray-400 mt-1">
                               A imagem aparecerá aqui
                             </p>
                           </div>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500 text-center mt-4">
-                        Esta é como seu produto aparecerá para os clientes
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Botões de Ação */}
+            {/* Botões */}
             <div className="bg-gray-50 border-t border-gray-200 px-8 py-6">
               <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                 <div>
-                  <p className="text-sm text-gray-600">
-                    * Campos obrigatórios
-                  </p>
+                  <p className="text-sm text-gray-600">* Campos obrigatórios</p>
                 </div>
                 
                 <div className="flex space-x-4">
@@ -586,7 +671,7 @@ const ProdutoForm = () => {
                     type="button"
                     onClick={handleCancel}
                     className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-                    disabled={saving}
+                    disabled={saving || uploading}
                   >
                     <X className="w-4 h-4 inline-block mr-2" />
                     Cancelar
@@ -594,13 +679,13 @@ const ProdutoForm = () => {
                   
                   <button
                     type="submit"
-                    disabled={saving}
+                    disabled={saving || uploading}
                     className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                   >
-                    {saving ? (
+                    {saving || uploading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        {isEditing ? 'Atualizando...' : 'Salvando...'}
+                        {uploading ? 'Enviando...' : isEditing ? 'Atualizando...' : 'Salvando...'}
                       </>
                     ) : (
                       <>
@@ -615,26 +700,26 @@ const ProdutoForm = () => {
           </form>
         </div>
 
-        {/* Informações Adicionais */}
+        {/* Dicas */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-medium text-blue-800 mb-2">💡 Dica de Título</h4>
+            <h4 className="font-medium text-blue-800 mb-2">💡 Título</h4>
             <p className="text-sm text-blue-700">
-              Use palavras-chave como "Digital", "Completo", "Passo a Passo" para melhorar a visibilidade.
+              Use palavras-chave para melhorar a visibilidade.
             </p>
           </div>
           
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <h4 className="font-medium text-green-800 mb-2">💰 Precificação</h4>
             <p className="text-sm text-green-700">
-              Considere o tempo de criação e complexidade ao definir o preço.
+              Considere o tempo de criação ao definir o preço.
             </p>
           </div>
           
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-            <h4 className="font-medium text-amber-800 mb-2">📸 Imagem de Qualidade</h4>
+            <h4 className="font-medium text-amber-800 mb-2">📸 Imagem</h4>
             <p className="text-sm text-amber-700">
-              Boas imagens aumentam em até 40% a chance de venda.
+              Boas imagens aumentam a chance de venda.
             </p>
           </div>
         </div>
