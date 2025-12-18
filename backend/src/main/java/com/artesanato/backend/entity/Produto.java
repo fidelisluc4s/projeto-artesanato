@@ -1,6 +1,12 @@
 package com.artesanato.backend.entity;
 
+import com.artesanato.backend.entity.e.TipoCategoria;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "produtos")
@@ -10,65 +16,91 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Título é obrigatório")
+    @Column(nullable = false)
     private String titulo;
 
-    private String categoria;
+    @Column(columnDefinition = "TEXT")
+    private String descricao;
 
-    private Double preco;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoCategoria categoria;
 
-    private Boolean emDestaque;
+    @NotNull(message = "Preço é obrigatório")
+    @Positive(message = "Preço deve ser positivo")
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal preco;
 
-    public Produto() {
+    private String imagemUrl;
+
+    @Column(name = "em_destaque")
+    private Boolean emDestaque = false;
+
+    @Column(name = "estoque_disponivel")
+    private Integer estoqueDisponivel = 0;
+
+    @Column(name = "data_criacao")
+    private LocalDateTime dataCriacao;
+
+    @Column(name = "data_atualizacao")
+    private LocalDateTime dataAtualizacao;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario; // Produto pertence a um usuário (artesão/vendedor)
+
+    @PrePersist
+    protected void onCreate() {
+        dataCriacao = LocalDateTime.now();
+        dataAtualizacao = LocalDateTime.now();
     }
 
-    public Produto(Long id, String titulo, String categoria, Double preco, Boolean emDestaque) {
-        this.id = id;
+    @PreUpdate
+    protected void onUpdate() {
+        dataAtualizacao = LocalDateTime.now();
+    }
+
+    // Construtores
+    public Produto() {}
+
+    public Produto(String titulo, TipoCategoria categoria, BigDecimal preco) {
         this.titulo = titulo;
         this.categoria = categoria;
         this.preco = preco;
-        this.emDestaque = emDestaque;
     }
 
-    public Produto(String s, String moldes, double v) {
-    }
+    // Getters e Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getId() {
-        return id;
-    }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public String getTitulo() {
-        return titulo;
-    }
+    public TipoCategoria getCategoria() { return categoria; }
+    public void setCategoria(TipoCategoria categoria) { this.categoria = categoria; }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
+    public BigDecimal getPreco() { return preco; }
+    public void setPreco(BigDecimal preco) { this.preco = preco; }
 
-    public String getCategoria() {
-        return categoria;
-    }
+    public String getImagemUrl() { return imagemUrl; }
+    public void setImagemUrl(String imagemUrl) { this.imagemUrl = imagemUrl; }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
+    public Boolean getEmDestaque() { return emDestaque; }
+    public void setEmDestaque(Boolean emDestaque) { this.emDestaque = emDestaque; }
 
-    public Double getPreco() {
-        return preco;
-    }
+    public Integer getEstoqueDisponivel() { return estoqueDisponivel; }
+    public void setEstoqueDisponivel(Integer estoqueDisponivel) { this.estoqueDisponivel = estoqueDisponivel; }
 
-    public void setPreco(Double preco) {
-        this.preco = preco;
-    }
+    public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
 
-    public Boolean getEmDestaque() {
-        return emDestaque;
-    }
+    public LocalDateTime getDataAtualizacao() { return dataAtualizacao; }
+    public void setDataAtualizacao(LocalDateTime dataAtualizacao) { this.dataAtualizacao = dataAtualizacao; }
 
-    public void setEmDestaque(Boolean emDestaque) {
-        this.emDestaque = emDestaque;
-    }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }
