@@ -12,6 +12,7 @@ import HomeLogada from './pages/HomeLogada';
 import ProdutosList from './pages/ProdutosList';
 import ProdutoForm from './pages/ProdutoForm';
 import PrivateRoute from './components/PrivateRoute';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   return (
@@ -40,6 +41,13 @@ function App() {
             <Route path="/dashboard" element={
               <PrivateRoute>
                 <HomeLogada />
+              </PrivateRoute>
+            } />
+
+             {/* NOVA ROTA: Perfil do Usuário (Protegida) */}
+            <Route path="/perfil" element={
+              <PrivateRoute>
+                <ProfilePage />
               </PrivateRoute>
             } />
             

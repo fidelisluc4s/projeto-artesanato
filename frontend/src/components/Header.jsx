@@ -1,10 +1,10 @@
 // src/components/Header.jsx (versão completa com React Router)
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  ShoppingBag, BookOpen, Phone, User, Download, 
-  Menu, X, LogOut, Package, Heart, Settings, 
-  ShoppingCart, Home, Grid, PlusCircle 
+import {
+  ShoppingBag, BookOpen, Phone, User, Download,
+  Menu, X, LogOut, Package, Heart, Settings,
+  ShoppingCart, Home, Grid, PlusCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import LoginModal from './LoginModal';
@@ -15,7 +15,7 @@ const Header = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  
+
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const userMenuRef = useRef();
@@ -71,8 +71,8 @@ const Header = () => {
 
             {/* Menu de Navegação - Desktop */}
             <nav className="hidden md:flex items-center space-x-8">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="hover:text-amber-200 transition-colors flex items-center"
                 onClick={() => setShowUserMenu(false)}
               >
@@ -80,17 +80,8 @@ const Header = () => {
                 Home
               </Link>
               
-              <Link 
-                to="/apostilas" 
-                className="hover:text-amber-200 transition-colors flex items-center"
-                onClick={() => setShowUserMenu(false)}
-              >
-                <BookOpen className="w-5 h-5 mr-1" />
-                Apostilas
-              </Link>
-              
-              <Link 
-                to="/contatos" 
+              <Link
+                to="/contatos"
                 className="hover:text-amber-200 transition-colors flex items-center"
                 onClick={() => setShowUserMenu(false)}
               >
@@ -101,17 +92,17 @@ const Header = () => {
               {/* Links para área logada (só aparecem se autenticado) */}
               {isAuthenticated && (
                 <>
-                  <Link 
-                    to="/dashboard" 
+                  <Link
+                    to="/dashboard"
                     className="hover:text-amber-200 transition-colors flex items-center"
                     onClick={() => setShowUserMenu(false)}
                   >
                     <Grid className="w-5 h-5 mr-1" />
                     Dashboard
                   </Link>
-                  
-                  <Link 
-                    to="/meus-produtos" 
+
+                  <Link
+                    to="/meus-produtos"
                     className="hover:text-amber-200 transition-colors flex items-center"
                     onClick={() => setShowUserMenu(false)}
                   >
@@ -134,10 +125,10 @@ const Header = () => {
                   {isAuthenticated ? (
                     <span className="flex items-center">
                       {user?.name?.split(' ')[0] || 'Minha conta'}
-                      <svg 
-                        className={`ml-1 w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className={`ml-1 w-4 h-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -155,68 +146,86 @@ const Header = () => {
                     <div className="px-4 py-3 border-b">
                       <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
                       <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                      {/* ADICIONE AQUI o link para Perfil no header */}
+                      <Link
+                        to="/perfil"
+                        className="mt-2 inline-flex items-center text-xs text-amber-600 hover:text-amber-700 font-medium"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <User className="w-3 h-3 mr-1" />
+                        Ver meu perfil completo
+                      </Link>
                     </div>
-                    
+
                     {/* Menu Items com React Router */}
                     <div className="py-1">
-                      <Link 
-                        to="/dashboard" 
+                      <Link
+                        to="/dashboard"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Grid className="w-4 h-4 mr-3" />
                         Dashboard
                       </Link>
-                      
-                      <Link 
-                        to="/meus-produtos" 
+                      {/* OU ADICIONE como item normal do menu */}
+                      <Link
+                        to="/perfil"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <User className="w-4 h-4 mr-3" />
+                        Meu Perfil
+                      </Link>
+
+                      <Link
+                        to="/meus-produtos"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Package className="w-4 h-4 mr-3" />
                         Meus Produtos
                       </Link>
-                      
-                      <Link 
-                        to="/novo-produto" 
+
+                      <Link
+                        to="/novo-produto"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <PlusCircle className="w-4 h-4 mr-3" />
                         Novo Produto
                       </Link>
-                      
+
                       <div className="border-t my-1"></div>
-                      
-                      <Link 
-                        to="/downloads" 
+
+                      <Link
+                        to="/downloads"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Download className="w-4 h-4 mr-3" />
                         Meus Downloads
                       </Link>
-                      
-                      <Link 
-                        to="/favoritos" 
+
+                      <Link
+                        to="/favoritos"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Heart className="w-4 h-4 mr-3" />
                         Favoritos
                       </Link>
-                      
+
                       <div className="border-t my-1"></div>
-                      
-                      <Link 
-                        to="/configuracoes" 
+
+                      <Link
+                        to="/configuracoes"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-4 h-4 mr-3" />
                         Configurações
                       </Link>
-                      
+
                       <button
                         onClick={handleLogout}
                         className="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
@@ -230,8 +239,8 @@ const Header = () => {
               </div>
 
               {/* Link Downloads (sempre visível) */}
-              <Link 
-                to="/downloads" 
+              <Link
+                to="/downloads"
                 className="hover:text-amber-200 transition-colors flex items-center"
                 onClick={() => setShowUserMenu(false)}
               >
@@ -241,8 +250,8 @@ const Header = () => {
 
               {/* Botão Novo Produto (só aparece logado) */}
               {isAuthenticated && (
-                <Link 
-                  to="/novo-produto" 
+                <Link
+                  to="/novo-produto"
                   className="hover:text-amber-200 transition-colors flex items-center bg-amber-500 hover:bg-amber-400 px-3 py-1 rounded-lg"
                   onClick={() => setShowUserMenu(false)}
                 >
@@ -252,8 +261,8 @@ const Header = () => {
               )}
 
               {/* Carrinho */}
-              <Link 
-                to="/carrinho" 
+              <Link
+                to="/carrinho"
                 className="hover:text-amber-200 transition-colors relative"
                 onClick={() => setShowUserMenu(false)}
               >
@@ -278,26 +287,35 @@ const Header = () => {
             <div className="md:hidden bg-amber-700 py-4 border-t border-amber-600">
               <div className="flex flex-col space-y-3 px-4">
                 {/* Links principais */}
-                <Link 
-                  to="/" 
+                <Link
+                  to="/"
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Home className="w-5 h-5 mr-3" />
                   Home
                 </Link>
-                
-                <Link 
-                  to="/apostilas" 
+
+                <Link
+                  to="/perfil"
+                  className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="w-5 h-5 mr-3" />
+                  Meu Perfil
+                </Link>
+
+                <Link
+                  to="/apostilas"
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <BookOpen className="w-5 h-5 mr-3" />
                   Apostilas
                 </Link>
-                
-                <Link 
-                  to="/contatos" 
+
+                <Link
+                  to="/contatos"
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -308,26 +326,26 @@ const Header = () => {
                 {/* Links da área logada */}
                 {isAuthenticated && (
                   <>
-                    <Link 
-                      to="/dashboard" 
+                    <Link
+                      to="/dashboard"
                       className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Grid className="w-5 h-5 mr-3" />
                       Dashboard
                     </Link>
-                    
-                    <Link 
-                      to="/meus-produtos" 
+
+                    <Link
+                      to="/meus-produtos"
                       className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <Package className="w-5 h-5 mr-3" />
                       Meus Produtos
                     </Link>
-                    
-                    <Link 
-                      to="/novo-produto" 
+
+                    <Link
+                      to="/novo-produto"
                       className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -336,7 +354,7 @@ const Header = () => {
                     </Link>
                   </>
                 )}
-                
+
                 {/* Minha Conta Mobile */}
                 <button
                   onClick={handleMinhaContaClick}
@@ -352,19 +370,19 @@ const Header = () => {
                     'Minha conta'
                   )}
                 </button>
-                
-                <Link 
-                  to="/downloads" 
+
+                <Link
+                  to="/downloads"
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <Download className="w-5 h-5 mr-3" />
                   Downloads
                 </Link>
-                
+
                 {/* Carrinho Mobile */}
-                <Link 
-                  to="/carrinho" 
+                <Link
+                  to="/carrinho"
                   className="py-3 hover:bg-amber-600 rounded-lg px-3 flex items-center transition-colors"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -374,7 +392,7 @@ const Header = () => {
                     3
                   </span>
                 </Link>
-                
+
                 {/* Logout no mobile se estiver logado */}
                 {isAuthenticated && (
                   <button
