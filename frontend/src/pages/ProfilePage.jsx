@@ -44,6 +44,13 @@ const ProfilePage = () => {
         tempoComoMembro: '0 dias'
     });
 
+    // Adicione este estado
+    const [passwordErrors, setPasswordErrors] = useState({
+        senhaAtual: '',
+        novaSenha: '',
+        confirmarSenha: ''
+    });
+
     // Atividades recentes (simuladas)
     const [activities, setActivities] = useState([]);
 
@@ -107,11 +114,18 @@ const ProfilePage = () => {
 
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
+
         setPasswordData(prev => ({
             ...prev,
             [name]: value
         }));
+
+        // Valida em tempo real
+        validatePasswordField(name, value);
+
+        // Limpa mensagens de erro/sucesso globais
         setError('');
+        setSuccess('');
     };
 
     const togglePasswordVisibility = (field) => {
@@ -140,48 +154,134 @@ const ProfilePage = () => {
         }
     };
 
-    // Atualize handlePasswordSubmit (versão SIMULADA):
+
+    const validatePasswordField = (name, value) => {
+        const errors = { ...passwordErrors };
+
+        switch (name) {
+            case 'senhaAtual':
+                errors.senhaAtual = value.length === 0 ? 'Campo obrigatório' : '';
+                break;
+
+            case 'novaSenha':
+                if (value.length === 0) {
+                    errors.novaSenha = 'Campo obrigatório';
+                } else if (value.length < 6) {
+                    errors.novaSenha = 'Mínimo 6 caracteres';
+                } else if (value.length < 8) {
+                    errors.novaSenha = 'Senha fraca (recomendado: 8+ caracteres)';
+                } else {
+                    errors.novaSenha = '';
+                }
+                break;
+
+            case 'confirmarSenha':
+                if (value.length === 0) {
+                    errors.confirmarSenha = 'Campo obrigatório';
+                } else if (value !== passwordData.novaSenha) {
+                    errors.confirmarSenha = 'As senhas não coincidem';
+                } else {
+                    errors.confirmarSenha = '';
+                }
+                break;
+        }
+
+        setPasswordErrors(errors);
+    };
+
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
         setError('');
         setSuccess('');
 
-        // Validações
-        if (passwordData.novaSenha !== passwordData.confirmarSenha) {
-            setError('As senhas não coincidem.');
+        // Validações usando userService.validarSenha
+        const validacaoErros = userService.validarSenha(passwordData);
+
+        if (validacaoErros.length > 0) {
+            setError(validacaoErros[0]); // Mostra apenas o primeiro erro
             setSaving(false);
             return;
         }
 
-        if (passwordData.novaSenha.length < 6) {
-            setError('A nova senha deve ter pelo menos 6 caracteres.');
+        // Validação adicional: nova senha igual à atual
+        if (passwordData.senhaAtual === passwordData.novaSenha) {
+            setError('A nova senha deve ser diferente da senha atual.');
             setSaving(false);
             return;
+        }
+
+        // Validação: força da senha (opcional)
+        if (passwordData.novaSenha.length < 8) {
+            console.warn('Senha muito curta. Recomendamos pelo menos 8 caracteres.');
         }
 
         try {
-            // 🔴 SIMULAÇÃO - REMOVA QUANDO BACKEND ESTIVER PRONTO
-            console.log('Simulando alteração de senha:', passwordData);
+            console.log('🔄 Enviando requisição para alterar senha...', {
+                url: '/usuario/senha',
+                temToken: !!localStorage.getItem('token')
+            });
 
-            // Simula delay de rede
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // 🟢 TENTA CHAMADA REAL
+            const response = await userService.changePassword(passwordData);
 
-            setSuccess('Senha alterada com sucesso! (SIMULAÇÃO)');
+            console.log('✅ Resposta do servidor:', response);
+            setSuccess(response.message || 'Senha alterada com sucesso!');
 
-            // 🟢 DESCOMENTE QUANDO BACKEND ESTIVER PRONTO
-            // const response = await userService.changePassword(passwordData);
-            // setSuccess(response.message || 'Senha alterada com sucesso!');
-
+            // Limpa os campos após sucesso
             setPasswordData({
                 senhaAtual: '',
                 novaSenha: '',
                 confirmarSenha: ''
             });
 
+            // Limpa mensagem após 5 segundos
+            setTimeout(() => {
+                setSuccess('');
+            }, 5000);
+
         } catch (error) {
-            console.error('Erro ao alterar senha:', error);
-            setError(error.response?.data?.message || 'Erro ao alterar senha.');
+            console.error('❌ Erro detalhado ao alterar senha:', {
+                message: error.message,
+                status: error.response?.status,
+                data: error.response?.data,
+                url: error.config?.url
+            });
+
+            // Tratamento específico de erros
+            if (error.response?.status === 400) {
+                setError(error.response.data?.message || 'Dados inválidos. Verifique as informações.');
+            } else if (error.response?.status === 401) {
+                setError('Senha atual incorreta.');
+            } else if (error.response?.status === 404) {
+                setError('Endpoint não encontrado. O servidor pode não ter esta funcionalidade implementada.');
+            } else if (error.response?.status === 500) {
+                setError('Erro interno no servidor. Tente novamente mais tarde.');
+            } else if (!error.response) {
+                setError('Erro de conexão. Verifique sua internet.');
+            } else {
+                setError(error.response?.data?.message || 'Erro ao alterar senha.');
+            }
+
+            // Se for erro 404 (endpoint não existe), oferece simulação
+            if (error.response?.status === 404) {
+                console.log('⚠️ Endpoint não encontrado. Oferecendo simulação...');
+                const usarSimulacao = window.confirm(
+                    'O servidor ainda não tem a funcionalidade de alterar senha.\n' +
+                    'Deseja testar a simulação do frontend?'
+                );
+
+                if (usarSimulacao) {
+                    // 🔴 SIMULAÇÃO (remova quando backend estiver pronto)
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    setSuccess('⚠️ SIMULAÇÃO: Senha alterada com sucesso! (Backend não implementado)');
+                    setPasswordData({
+                        senhaAtual: '',
+                        novaSenha: '',
+                        confirmarSenha: ''
+                    });
+                }
+            }
         } finally {
             setSaving(false);
         }
@@ -501,93 +601,132 @@ const ProfilePage = () => {
                                 <form onSubmit={handlePasswordSubmit}>
                                     <div className="space-y-6">
                                         {/* Senha Atual */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Senha Atual *
-                                            </label>
-                                            <div className="relative">
-                                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                                <input
-                                                    type={showPassword.senhaAtual ? "text" : "password"}
-                                                    name="senhaAtual"
-                                                    value={passwordData.senhaAtual}
-                                                    onChange={handlePasswordChange}
-                                                    className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                                    required
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => togglePasswordVisibility('senhaAtual')}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                                >
-                                                    {showPassword.senhaAtual ? (
-                                                        <EyeOff className="w-5 h-5" />
-                                                    ) : (
-                                                        <Eye className="w-5 h-5" />
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
+                                        {/* Senha Atual */}
+<div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+        Senha Atual *
+    </label>
+    <div className="relative">
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <input
+            type={showPassword.senhaAtual ? "text" : "password"}
+            name="senhaAtual"
+            value={passwordData.senhaAtual}
+            onChange={handlePasswordChange}
+            className={`w-full pl-10 pr-10 py-3 border ${
+                passwordErrors.senhaAtual ? 'border-red-300' : 'border-gray-300'
+            } rounded-lg focus:outline-none focus:ring-2 ${
+                passwordErrors.senhaAtual ? 'focus:ring-red-500' : 'focus:ring-amber-500'
+            }`}
+            required
+            placeholder="Digite sua senha atual"
+        />
+        <button
+            type="button"
+            onClick={() => togglePasswordVisibility('senhaAtual')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+            {showPassword.senhaAtual ? (
+                <EyeOff className="w-5 h-5" />
+            ) : (
+                <Eye className="w-5 h-5" />
+            )}
+        </button>
+    </div>
+    {passwordErrors.senhaAtual && (
+        <p className="mt-1 text-sm text-red-600">{passwordErrors.senhaAtual}</p>
+    )}
+</div>
 
-                                        {/* Nova Senha */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Nova Senha *
-                                            </label>
-                                            <div className="relative">
-                                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                                <input
-                                                    type={showPassword.novaSenha ? "text" : "password"}
-                                                    name="novaSenha"
-                                                    value={passwordData.novaSenha}
-                                                    onChange={handlePasswordChange}
-                                                    className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                                    required
-                                                    minLength="6"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => togglePasswordVisibility('novaSenha')}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                                >
-                                                    {showPassword.novaSenha ? (
-                                                        <EyeOff className="w-5 h-5" />
-                                                    ) : (
-                                                        <Eye className="w-5 h-5" />
-                                                    )}
-                                                </button>
-                                            </div>
-                                            <p className="text-sm text-gray-500 mt-1">Mínimo de 6 caracteres</p>
-                                        </div>
+{/* Nova Senha */}
+<div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+        Nova Senha *
+    </label>
+    <div className="relative">
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <input
+            type={showPassword.novaSenha ? "text" : "password"}
+            name="novaSenha"
+            value={passwordData.novaSenha}
+            onChange={handlePasswordChange}
+            className={`w-full pl-10 pr-10 py-3 border ${
+                passwordErrors.novaSenha ? 'border-red-300' : 'border-gray-300'
+            } rounded-lg focus:outline-none focus:ring-2 ${
+                passwordErrors.novaSenha ? 'focus:ring-red-500' : 'focus:ring-amber-500'
+            }`}
+            required
+            minLength="6"
+            placeholder="Digite sua nova senha"
+        />
+        <button
+            type="button"
+            onClick={() => togglePasswordVisibility('novaSenha')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+            {showPassword.novaSenha ? (
+                <EyeOff className="w-5 h-5" />
+            ) : (
+                <Eye className="w-5 h-5" />
+            )}
+        </button>
+    </div>
+    <div className="flex justify-between mt-1">
+        {passwordErrors.novaSenha ? (
+            <p className="text-sm text-red-600">{passwordErrors.novaSenha}</p>
+        ) : (
+            <p className="text-sm text-gray-500">Mínimo de 6 caracteres</p>
+        )}
+        {passwordData.novaSenha && (
+            <p className={`text-sm ${
+                passwordData.novaSenha.length >= 8 ? 'text-green-600' : 'text-amber-600'
+            }`}>
+                Força: {
+                    passwordData.novaSenha.length >= 12 ? 'Excelente' :
+                    passwordData.novaSenha.length >= 8 ? 'Boa' :
+                    'Fraca'
+                }
+            </p>
+        )}
+    </div>
+</div>
 
-                                        {/* Confirmar Senha */}
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                Confirmar Nova Senha *
-                                            </label>
-                                            <div className="relative">
-                                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                                <input
-                                                    type={showPassword.confirmarSenha ? "text" : "password"}
-                                                    name="confirmarSenha"
-                                                    value={passwordData.confirmarSenha}
-                                                    onChange={handlePasswordChange}
-                                                    className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                                    required
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => togglePasswordVisibility('confirmarSenha')}
-                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                                >
-                                                    {showPassword.confirmarSenha ? (
-                                                        <EyeOff className="w-5 h-5" />
-                                                    ) : (
-                                                        <Eye className="w-5 h-5" />
-                                                    )}
-                                                </button>
-                                            </div>
-                                        </div>
+{/* Confirmar Senha */}
+<div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+        Confirmar Nova Senha *
+    </label>
+    <div className="relative">
+        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <input
+            type={showPassword.confirmarSenha ? "text" : "password"}
+            name="confirmarSenha"
+            value={passwordData.confirmarSenha}
+            onChange={handlePasswordChange}
+            className={`w-full pl-10 pr-10 py-3 border ${
+                passwordErrors.confirmarSenha ? 'border-red-300' : 'border-gray-300'
+            } rounded-lg focus:outline-none focus:ring-2 ${
+                passwordErrors.confirmarSenha ? 'focus:ring-red-500' : 'focus:ring-amber-500'
+            }`}
+            required
+            placeholder="Confirme sua nova senha"
+        />
+        <button
+            type="button"
+            onClick={() => togglePasswordVisibility('confirmarSenha')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+            {showPassword.confirmarSenha ? (
+                <EyeOff className="w-5 h-5" />
+            ) : (
+                <Eye className="w-5 h-5" />
+            )}
+        </button>
+    </div>
+    {passwordErrors.confirmarSenha && (
+        <p className="mt-1 text-sm text-red-600">{passwordErrors.confirmarSenha}</p>
+    )}
+</div>
 
                                         {/* Dicas de Segurança */}
                                         <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
