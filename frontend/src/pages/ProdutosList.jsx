@@ -6,7 +6,7 @@ import {
   Package, Star, ArrowUpDown, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { produtoService } from '../services/api';
+import { produtoService } from '../services/produtoService';
 
 const ProdutosList = () => {
   const { user } = useAuth();

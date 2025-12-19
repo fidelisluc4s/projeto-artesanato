@@ -7,7 +7,8 @@ import {
   CheckCircle, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { produtoService, uploadService } from '../services/api';
+import { produtoService } from '../services/produtoService';
+import { uploadService } from '../services/uploadService';
 
 const ProdutoForm = () => {
   const { id } = useParams();

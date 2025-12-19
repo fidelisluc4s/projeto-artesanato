@@ -6,7 +6,7 @@ import {
     Package, ShoppingBag, Clock, AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { api } from '../services/api';
+import { userService } from '../services/userService';
 
 const ProfilePage = () => {
     const { user, logout } = useAuth();
@@ -53,11 +53,11 @@ const ProfilePage = () => {
         carregarEstatisticas();
     }, []);
 
+    // Atualize a função carregarPerfil:
     const carregarPerfil = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/usuario/perfil');
-            const data = response.data;
+            const data = await userService.getProfile();
 
             setProfileData({
                 nome: data.nome || '',
@@ -74,6 +74,7 @@ const ProfilePage = () => {
             setLoading(false);
         }
     };
+
 
     const carregarEstatisticas = async () => {
         // Simula carregamento de estatísticas
@@ -120,6 +121,7 @@ const ProfilePage = () => {
         }));
     };
 
+    // Atualize handleProfileSubmit:
     const handleProfileSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -127,11 +129,8 @@ const ProfilePage = () => {
         setSuccess('');
 
         try {
-            await api.put('/usuario/perfil', profileData);
+            await userService.updateProfile(profileData);
             setSuccess('Perfil atualizado com sucesso!');
-
-            // Atualiza o usuário no contexto
-            // (você pode adicionar isso no AuthContext depois)
 
         } catch (error) {
             console.error('Erro ao atualizar perfil:', error);
@@ -141,6 +140,7 @@ const ProfilePage = () => {
         }
     };
 
+    // Atualize handlePasswordSubmit (versão SIMULADA):
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -161,15 +161,18 @@ const ProfilePage = () => {
         }
 
         try {
-            // Em um sistema real, você teria um endpoint específico para alterar senha
-            // Por enquanto, usaremos o mesmo endpoint de perfil
-            await api.put('/usuario/perfil', {
-                ...profileData,
-                senha: passwordData.novaSenha,
-                senhaAtual: passwordData.senhaAtual
-            });
+            // 🔴 SIMULAÇÃO - REMOVA QUANDO BACKEND ESTIVER PRONTO
+            console.log('Simulando alteração de senha:', passwordData);
 
-            setSuccess('Senha alterada com sucesso!');
+            // Simula delay de rede
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            setSuccess('Senha alterada com sucesso! (SIMULAÇÃO)');
+
+            // 🟢 DESCOMENTE QUANDO BACKEND ESTIVER PRONTO
+            // const response = await userService.changePassword(passwordData);
+            // setSuccess(response.message || 'Senha alterada com sucesso!');
+
             setPasswordData({
                 senhaAtual: '',
                 novaSenha: '',
@@ -657,8 +660,8 @@ const ProfilePage = () => {
                                                 className="flex items-start p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                                             >
                                                 <div className={`h-10 w-10 rounded-full flex items-center justify-center mr-4 ${activity.tipo === 'produto' ? 'bg-blue-100 text-blue-600' :
-                                                        activity.tipo === 'login' ? 'bg-green-100 text-green-600' :
-                                                            'bg-amber-100 text-amber-600'
+                                                    activity.tipo === 'login' ? 'bg-green-100 text-green-600' :
+                                                        'bg-amber-100 text-amber-600'
                                                     }`}>
                                                     {activity.tipo === 'produto' ? <Package className="w-5 h-5" /> :
                                                         activity.tipo === 'login' ? <CheckCircle className="w-5 h-5" /> :

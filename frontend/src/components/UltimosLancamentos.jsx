@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, ArrowRight, Loader } from 'lucide-react';
-import { produtoService } from '../services/api';
+import { produtoService } from '../services/produtoService';
 
 const UltimosLancamentos = () => {
   const [produtos, setProdutos] = useState([]);
