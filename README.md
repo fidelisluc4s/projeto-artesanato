@@ -1,122 +1,127 @@
 Projeto Artesanato - Plataforma Full Stack
-Visão Geral
+📋 Sobre o Projeto
 Sistema completo desenvolvido para digitalizar um negócio de artesanato, permitindo gestão de produtos e preparando para expansão futura (e-commerce, cursos online).
 
-Stack Tecnológica
-Backend: Java 17, Spring Boot 3, Maven, H2 Database
+🛠️ Tecnologias Utilizadas
+Backend
+Java 17 - Linguagem principal
 
-Frontend: React 18, TypeScript, Vite, Tailwind CSS
+Spring Boot 3 - Framework para API REST
 
-Organização: Mono-repositório
+Spring Data JPA - Persistência de dados
 
-Ferramentas: Git, Postman para testes de API
+H2 Database - Banco em memória para desenvolvimento
 
-Estrutura do Projeto
+Maven - Gerenciamento de dependências
+
+Frontend
+React 18 - Biblioteca para interface
+
+TypeScript - Tipagem estática
+
+Vite - Build tool ultra-rápido
+
+Tailwind CSS - Framework CSS
+
+Axios - Cliente HTTP
+
+Organização
+Mono-repositório - Frontend e backend no mesmo repositório
+
+Git - Controle de versão
+
+🏗️ Arquitetura do Projeto
+Estrutura de Diretórios
 text
 projeto-artesanato/
-├── backend/          # API Spring Boot
+│
+├── backend/                    # API Spring Boot
 │   ├── src/main/java/com/artesanato/
-│   │   ├── controller/    # Endpoints REST
-│   │   ├── service/       # Regras de negócio
-│   │   ├── repository/    # Acesso a dados
-│   │   ├── model/         # Entidades
-│   │   └── config/        # Configurações
+│   │   ├── controller/        # Controladores REST
+│   │   ├── service/          # Lógica de negócio
+│   │   ├── repository/       # Acesso a dados
+│   │   ├── model/           # Entidades JPA
+│   │   └── config/          # Configurações
+│   ├── src/main/resources/
+│   │   ├── application.properties
+│   │   └── data.sql         # Dados iniciais
 │   └── pom.xml
 │
-└── frontend/         # Interface React
+└── frontend/                  # Aplicação React
     ├── src/
-    │   ├── components/   # Componentes reutilizáveis
-    │   ├── pages/        # Páginas principais
-    │   ├── services/     # Chamadas à API
-    │   └── styles/       # Estilos Tailwind
+    │   ├── components/       # Componentes reutilizáveis
+    │   ├── pages/           # Páginas da aplicação
+    │   ├── services/        # Comunicação com API
+    │   ├── types/          # Tipos TypeScript
+    │   └── styles/         # Estilos Tailwind
     ├── package.json
+    ├── tsconfig.json
     └── vite.config.ts
-Funcionalidades Implementadas
-Backend (Spring Boot)
-API REST com CRUD completo de produtos
+🚀 Como Executar o Projeto
+Pré-requisitos
+Java 17 ou superior
 
-Banco H2 em memória (para desenvolvimento)
+Node.js 18+ e npm
 
-Upload e gestão de imagens
+Maven (ou use o wrapper incluído)
 
-Validação de dados com Bean Validation
+Passo 1: Configuração Inicial
+bash
+# Clone o repositório
+git clone [url-do-repositorio]
+cd projeto-artesanato
+Passo 2: Executar o Backend
+bash
+# Navegue para a pasta backend
+cd backend
 
-Tratamento global de exceções
+# Execute o projeto Spring Boot
+./mvnw spring-boot:run
+Backend rodando em: http://localhost:8080
 
-Frontend (React)
-Dashboard responsivo para gestão
+Passo 3: Executar o Frontend
+bash
+# Em outro terminal, navegue para a pasta frontend
+cd frontend
 
-Galeria de produtos com filtros
+# Instale as dependências
+npm install
 
-Formulários com validação
+# Inicie o servidor de desenvolvimento
+npm run dev
+Frontend rodando em: http://localhost:5173
 
-Design mobile-first com Tailwind CSS
+📡 Endpoints da API
+Produtos
+Método	Endpoint	Descrição
+GET	/api/produtos	Lista todos os produtos
+GET	/api/produtos/{id}	Busca produto por ID
+POST	/api/produtos	Cria novo produto
+PUT	/api/produtos/{id}	Atualiza produto
+DELETE	/api/produtos/{id}	Remove produto
+Categorias
+Método	Endpoint	Descrição
+GET	/api/categorias	Lista todas as categorias
+POST	/api/categorias	Cria nova categoria
+Upload
+Método	Endpoint	Descrição
+POST	/api/upload	Upload de imagens
+🗄️ Banco de Dados H2
+Configuração
+O projeto usa H2 Database em modo memória:
 
-Carrinho de compras (base para e-commerce)
-
-Como Executar
-1. Banco de Dados (H2)
-O projeto usa H2 Database em memória. Ao iniciar o backend:
-
-Banco criado automaticamente
-
-Dados de exemplo carregados via data.sql
-
-Console H2 disponível em: http://localhost:8080/h2-console
+URL do Console: http://localhost:8080/h2-console
 
 JDBC URL: jdbc:h2:mem:artesanatodb
 
 Usuário: sa
 
-Senha: (vazio)
+Senha: (deixe em branco)
 
-2. Backend
-bash
-cd backend
-./mvnw spring-boot:run
-API disponível em: http://localhost:8080
+Dados Iniciais
+O arquivo data.sql na pasta backend/src/main/resources/ contém dados de exemplo que são carregados automaticamente ao iniciar a aplicação.
 
-3. Frontend
-bash
-cd frontend
-npm install
-npm run dev
-Aplicação disponível em: http://localhost:5173
-
-Endpoints da API
-Método	Endpoint	Descrição
-GET	/api/produtos	Lista todos os produtos
-GET	/api/produtos/{id}	Busca produto específico
-POST	/api/produtos	Cria novo produto
-PUT	/api/produtos/{id}	Atualiza produto
-DELETE	/api/produtos/{id}	Remove produto
-GET	/api/categorias	Lista categorias
-POST	/api/upload	Upload de imagem
-Testando a API com Postman
-Coleção exemplo:
-json
-{
-  "endpoints": [
-    {
-      "name": "Listar produtos",
-      "method": "GET",
-      "url": "http://localhost:8080/api/produtos"
-    },
-    {
-      "name": "Criar produto",
-      "method": "POST",
-      "url": "http://localhost:8080/api/produtos",
-      "body": {
-        "nome": "Guirlanda Natal",
-        "descricao": "Guirlanda artesanal para Natal",
-        "preco": 89.90,
-        "categoria": "DECORACAO",
-        "estoque": 10
-      }
-    }
-  ]
-}
-Configurações
+🔧 Configurações
 Backend (application.properties)
 properties
 # Servidor
@@ -128,76 +133,102 @@ spring.datasource.driverClassName=org.h2.Driver
 spring.datasource.username=sa
 spring.datasource.password=
 
-# H2 Console
+# H2 Console (acessível em /h2-console)
 spring.h2.console.enabled=true
 spring.h2.console.path=/h2-console
 
 # JPA
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+# Upload de arquivos
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
 Frontend (.env)
 env
 VITE_API_BASE_URL=http://localhost:8080/api
-Evolução do Projeto
-Fase Atual
-Gestão básica de produtos
+🧪 Testando a API
+Com Postman
+Importe a coleção de exemplos
 
-Catálogo digital
+Configure o ambiente com base URL: http://localhost:8080
+
+Teste os endpoints:
+
+GET /api/produtos - Listar produtos
+
+POST /api/produtos - Criar produto
+
+GET /api/produtos/1 - Buscar produto específico
+
+Exemplo de Request Body (POST /api/produtos)
+json
+{
+  "nome": "Guirlanda Natal",
+  "descricao": "Guirlanda artesanal para decoração natalina",
+  "preco": 89.90,
+  "categoria": "DECORACAO",
+  "estoque": 15,
+  "imagemUrl": "uploads/guirlanda.jpg"
+}
+📱 Funcionalidades do Frontend
+Páginas Principais
+Dashboard - Visão geral do sistema
+
+Produtos - Lista e gestão de produtos
+
+Categorias - Gerenciamento de categorias
+
+Galeria - Visualização em grade dos produtos
+
+Componentes Principais
+ProdutoCard - Card para exibição de produto
+
+ProdutoForm - Formulário de criação/edição
+
+Header - Cabeçalho com navegação
+
+Sidebar - Menu lateral responsivo
+
+🎯 Roadmap de Evolução
+Fase 1 - MVP (Atual)
+CRUD de produtos
+
+Gestão de categorias
 
 Interface administrativa
 
-Próximas Fases
-Sistema de vendas online
+Upload de imagens
 
-Carrinho completo
+Fase 2 - E-commerce
+Sistema de carrinho completo
 
-Pagamento integrado
+Integração com gateway de pagamento
 
 Gestão de pedidos
 
-Plataforma de cursos
+Área do cliente
 
-Aulas em vídeo
+Fase 3 - Plataforma de Cursos
+Gerenciamento de cursos
+
+Player de vídeo
+
+Sistema de certificados
 
 Área do aluno
 
-Certificados
-
-Recursos avançados
-
-Autenticação de usuários
+Fase 4 - Recursos Avançados
+Autenticação e autorização
 
 Dashboard analítico
 
+Sistema de notificações
+
 Multi-vendedores
 
-Vantagens da Arquitetura
-Mono-repositório
-Código frontend/backend juntos
-
-Facilita deploy coordenado
-
-Versionamento simplificado
-
-H2 Database
-Ideal para desenvolvimento
-
-Não precisa instalar PostgreSQL
-
-Dados em memória (rápido)
-
-Pode migrar para PostgreSQL depois
-
-Stack Moderna
-Spring Boot: rápido desenvolvimento Java
-
-React + Vite: frontend performático
-
-Tailwind CSS: estilização rápida
-
-TypeScript: código mais seguro
-
-Comandos Úteis
+⚙️ Comandos Úteis
 Backend
 bash
 # Rodar aplicação
@@ -206,17 +237,105 @@ bash
 # Executar testes
 ./mvnw test
 
-# Gerar JAR
+# Limpar e compilar
+./mvnw clean compile
+
+# Gerar pacote JAR
 ./mvnw clean package
 Frontend
 bash
-# Desenvolvimento
+# Modo desenvolvimento
 npm run dev
 
-# Build produção
+# Build para produção
 npm run build
 
-# Preview build
+# Preview do build
 npm run preview
-Contato
-Para mais informações sobre o projeto ou demonstração completa, entre em contato.
+
+# Verificar problemas
+npm run lint
+
+# Instalar dependências
+npm install
+🔄 Fluxo de Desenvolvimento
+Para adicionar nova funcionalidade:
+Crie branch a partir de main
+
+Desenvolva no backend (Java/Spring)
+
+Desenvolva no frontend (React/TypeScript)
+
+Teste integração localmente
+
+Commit e push para o repositório
+
+Crie Pull Request para revisão
+
+Para testar alterações:
+Certifique-se que o backend está rodando
+
+Execute o frontend em modo desenvolvimento
+
+Teste todos os cenários relevantes
+
+Verifique no console H2 se dados estão consistentes
+
+📊 Vantagens da Arquitetura
+Mono-repositório
+Versionamento unificado - Histórico completo em um lugar
+
+Deploy coordenado - Facilita sincronização entre frontend/backend
+
+Facilidade de navegação - Encontre código relacionado rapidamente
+
+H2 Database
+Zero configuração - Funciona imediatamente
+
+Rápido para desenvolvimento - Dados em memória
+
+Fácil migração - Pode trocar por PostgreSQL depois
+
+Stack Escolhida
+Spring Boot - Produtividade no backend Java
+
+React + Vite - Performance no frontend
+
+TypeScript - Segurança com tipagem
+
+Tailwind CSS - Estilização eficiente
+
+🆘 Solução de Problemas
+Backend não inicia
+Verifique se a porta 8080 está livre
+
+Confirme se Java 17+ está instalado
+
+Execute ./mvnw clean e tente novamente
+
+Frontend não conecta com API
+Confirme se backend está rodando
+
+Verifique VITE_API_BASE_URL no .env
+
+Consulte o console do navegador para erros CORS
+
+Banco H2 não aparece
+Acesse http://localhost:8080/h2-console
+
+Verifique se spring.h2.console.enabled=true
+
+Confirme credenciais no application.properties
+
+📞 Suporte
+Para dúvidas sobre o projeto:
+
+Consulte a documentação acima
+
+Verifique o código fonte
+
+Entre em contato para demonstração
+
+Status do Projeto: Em desenvolvimento ativo
+Última Atualização: Dezembro 2024
+Próxima Fase: Implementação do carrinho de compras
