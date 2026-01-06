@@ -1,6 +1,9 @@
 Projeto Artesanato - Plataforma Full Stack
+
+
 📋 Sobre o Projeto
 Sistema completo desenvolvido para digitalizar um negócio de artesanato, permitindo gestão de produtos e preparando para expansão futura (e-commerce, cursos online).
+
 
 🛠️ Tecnologias Utilizadas
 Backend
