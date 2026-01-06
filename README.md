@@ -1,312 +1,222 @@
-🎨 Projeto Artesanato - Plataforma Full Stack
-https://img.shields.io/badge/Java-17+-007396?style=for-the-badge&logo=openjdk&logoColor=white
-https://img.shields.io/badge/Spring%2520Boot-3.x-6DB33F?style=for-the-badge&logo=springboot&logoColor=white
-https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black
-https://img.shields.io/badge/TypeScript-5.x-3178C6?style=for-the-badge&logo=typescript&logoColor=white
-https://img.shields.io/badge/Vite-5.x-646CFF?style=for-the-badge&logo=vite&logoColor=white
-https://img.shields.io/badge/Tailwind%2520CSS-3.x-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white
+Projeto Artesanato - Plataforma Full Stack
+Visão Geral
+Sistema completo desenvolvido para digitalizar um negócio de artesanato, permitindo gestão de produtos e preparando para expansão futura (e-commerce, cursos online).
 
-📋 Sobre o Projeto
-Plataforma Full Stack desenvolvida para um negócio de artesanato especializado em:
+Stack Tecnológica
+Backend: Java 17, Spring Boot 3, Maven, H2 Database
 
-Artesanatos em feltro 🧵
+Frontend: React 18, TypeScript, Vite, Tailwind CSS
 
-Guirlandas personalizadas 🎀
+Organização: Mono-repositório
 
-Decoração de quartos de bebê 🍼
+Ferramentas: Git, Postman para testes de API
 
-Bonecos artesanais 🧸
-
-A solução implementa um sistema completo de gestão de produtos com arquitetura preparada para futura expansão para e-commerce e cursos digitais.
-
-🏗️ Arquitetura
-Mono-Repositório Organizado
+Estrutura do Projeto
 text
 projeto-artesanato/
-├── backend/           # API REST - Spring Boot
-│   ├── src/
-│   │   ├── main/java/com/artesanato/
-│   │   │   ├── controller/    # Controllers REST
-│   │   │   ├── service/       # Lógica de negócio
-│   │   │   ├── repository/    # Acesso a dados
-│   │   │   ├── model/         # Entidades JPA
-│   │   │   └── config/        # Configurações
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       └── data.sql       # Dados iniciais
+├── backend/          # API Spring Boot
+│   ├── src/main/java/com/artesanato/
+│   │   ├── controller/    # Endpoints REST
+│   │   ├── service/       # Regras de negócio
+│   │   ├── repository/    # Acesso a dados
+│   │   ├── model/         # Entidades
+│   │   └── config/        # Configurações
 │   └── pom.xml
 │
-└── frontend/          # Interface - React + Vite
+└── frontend/         # Interface React
     ├── src/
-    │   ├── components/   # Componentes React
-    │   ├── pages/        # Páginas da aplicação
-    │   ├── services/     # Comunicação com API
-    │   ├── types/        # Tipos TypeScript
+    │   ├── components/   # Componentes reutilizáveis
+    │   ├── pages/        # Páginas principais
+    │   ├── services/     # Chamadas à API
     │   └── styles/       # Estilos Tailwind
-    ├── index.html
     ├── package.json
-    ├── tsconfig.json
     └── vite.config.ts
-🚀 Tecnologias Utilizadas
-Backend (Java Spring Boot)
-Java 17+ - Linguagem principal
+Funcionalidades Implementadas
+Backend (Spring Boot)
+API REST com CRUD completo de produtos
 
-Spring Boot 3.x - Framework backend
+Banco H2 em memória (para desenvolvimento)
 
-Spring MVC - Arquitetura MVC
-
-Spring Data JPA - Persistência de dados
-
-PostgreSQL - Banco de dados relacional
-
-Maven - Gerenciamento de dependências
-
-Docker - Containerização
-
-Frontend (React Moderno)
-React 18 - Biblioteca de UI
-
-TypeScript - Tipagem estática
-
-Vite - Build tool ultra-rápido
-
-Tailwind CSS - Framework CSS utility-first
-
-React Router - Navegação SPA
-
-Axios - Cliente HTTP
-
-📦 Funcionalidades Implementadas
-✅ Backend (API REST)
-CRUD completo de produtos e categorias
-
-Upload e gerenciamento de imagens
-
-Sistema de autenticação (JWT)
+Upload e gestão de imagens
 
 Validação de dados com Bean Validation
 
-Documentação da API (Swagger/OpenAPI)
+Tratamento global de exceções
 
-Tratamento de exceções global
-
-✅ Frontend (Interface)
-Dashboard administrativo responsivo
+Frontend (React)
+Dashboard responsivo para gestão
 
 Galeria de produtos com filtros
 
+Formulários com validação
+
+Design mobile-first com Tailwind CSS
+
 Carrinho de compras (base para e-commerce)
 
-Formulários otimizados com validação
+Como Executar
+1. Banco de Dados (H2)
+O projeto usa H2 Database em memória. Ao iniciar o backend:
 
-Gerenciamento de estado com Context API
+Banco criado automaticamente
 
-Design mobile-first com Tailwind
+Dados de exemplo carregados via data.sql
 
-🛠️ Como Executar o Projeto
-Pré-requisitos
-bash
-# Java 17 ou superior
-java --version
+Console H2 disponível em: http://localhost:8080/h2-console
 
-# Node.js 18+ e npm
-node --version
-npm --version
+JDBC URL: jdbc:h2:mem:artesanatodb
 
-# PostgreSQL (ou Docker)
-docker --version  # opcional
-1. Clone o Repositório
-bash
-git clone https://github.com/seu-usuario/projeto-artesanato.git
-cd projeto-artesanato
-2. Configuração do Banco de Dados
-sql
--- Crie o banco de dados
-CREATE DATABASE artesanato_db;
+Usuário: sa
 
--- Ou use Docker
-docker run --name postgres-artesanato \
-  -e POSTGRES_DB=artesanato_db \
-  -e POSTGRES_PASSWORD=senha123 \
-  -p 5432:5432 \
-  -d postgres:15
-3. Backend (Spring Boot)
+Senha: (vazio)
+
+2. Backend
 bash
 cd backend
-
-# Configure o application.properties
-# Altere as credenciais do banco se necessário
-
-# Execute com Maven
 ./mvnw spring-boot:run
+API disponível em: http://localhost:8080
 
-# Ou compile e execute
-./mvnw clean package
-java -jar target/backend-0.0.1-SNAPSHOT.jar
-A API estará disponível em: http://localhost:8080
-Documentação Swagger: http://localhost:8080/swagger-ui.html
-
-4. Frontend (React + Vite)
+3. Frontend
 bash
 cd frontend
-
-# Instale as dependências
 npm install
-
-# Execute em modo desenvolvimento
 npm run dev
-A aplicação estará disponível em: http://localhost:5173
+Aplicação disponível em: http://localhost:5173
 
-🐳 Execução com Docker (Opcional)
-Docker Compose
-yaml
-# docker-compose.yml (crie na raiz do projeto)
-version: '3.8'
-services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: artesanato_db
-      POSTGRES_PASSWORD: senha123
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-  
-  backend:
-    build: ./backend
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/artesanato_db
-  
-  frontend:
-    build: ./frontend
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-
-volumes:
-  postgres_data:
-bash
-# Execute tudo com Docker Compose
-docker-compose up --build
-📚 Endpoints da API
+Endpoints da API
 Método	Endpoint	Descrição
 GET	/api/produtos	Lista todos os produtos
-GET	/api/produtos/{id}	Busca produto por ID
+GET	/api/produtos/{id}	Busca produto específico
 POST	/api/produtos	Cria novo produto
 PUT	/api/produtos/{id}	Atualiza produto
 DELETE	/api/produtos/{id}	Remove produto
 GET	/api/categorias	Lista categorias
 POST	/api/upload	Upload de imagem
-🎨 Variáveis de Ambiente
-Backend (backend/src/main/resources/application.properties)
+Testando a API com Postman
+Coleção exemplo:
+json
+{
+  "endpoints": [
+    {
+      "name": "Listar produtos",
+      "method": "GET",
+      "url": "http://localhost:8080/api/produtos"
+    },
+    {
+      "name": "Criar produto",
+      "method": "POST",
+      "url": "http://localhost:8080/api/produtos",
+      "body": {
+        "nome": "Guirlanda Natal",
+        "descricao": "Guirlanda artesanal para Natal",
+        "preco": 89.90,
+        "categoria": "DECORACAO",
+        "estoque": 10
+      }
+    }
+  ]
+}
+Configurações
+Backend (application.properties)
 properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/artesanato_db
-spring.datasource.username=postgres
-spring.datasource.password=senha123
-spring.jpa.hibernate.ddl-auto=update
+# Servidor
 server.port=8080
-Frontend (frontend/.env)
+
+# Banco H2
+spring.datasource.url=jdbc:h2:mem:artesanatodb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
+# H2 Console
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+
+# JPA
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.jpa.hibernate.ddl-auto=update
+Frontend (.env)
 env
 VITE_API_BASE_URL=http://localhost:8080/api
-VITE_APP_NAME=Artesanato Platform
-🔧 Comandos Úteis
-Backend
-bash
-# Executar testes
-./mvnw test
+Evolução do Projeto
+Fase Atual
+Gestão básica de produtos
 
-# Gerar JAR executável
-./mvnw clean package
+Catálogo digital
 
-# Verificar dependências
-./mvnw dependency:tree
-Frontend
-bash
-# Build para produção
-npm run build
+Interface administrativa
 
-# Preview build de produção
-npm run preview
+Próximas Fases
+Sistema de vendas online
 
-# Lint do código
-npm run lint
-🧪 Testes
-Backend (Spring Boot)
-bash
-cd backend
-./mvnw test
-Frontend (React)
-bash
-cd frontend
-npm test
-📊 Próximas Funcionalidades (Roadmap)
-Sistema de Pagamentos 💳
+Carrinho completo
 
-Integração com Mercado Pago/Stripe
+Pagamento integrado
 
-Carrinho de compras completo
+Gestão de pedidos
 
-Histórico de pedidos
+Plataforma de cursos
 
-Plataforma de Cursos 🎓
-
-Gerenciamento de aulas em vídeo
+Aulas em vídeo
 
 Área do aluno
 
-Certificados digitais
+Certificados
 
-Recursos Avançados 🚀
+Recursos avançados
 
-Busca inteligente com Elasticsearch
-
-Cache com Redis
-
-Notificações em tempo real
+Autenticação de usuários
 
 Dashboard analítico
 
-🤝 Como Contribuir
-Faça um Fork do projeto
+Multi-vendedores
 
-Crie uma Branch para sua Feature (git checkout -b feature/AmazingFeature)
+Vantagens da Arquitetura
+Mono-repositório
+Código frontend/backend juntos
 
-Commit suas mudanças (git commit -m 'Add some AmazingFeature')
+Facilita deploy coordenado
 
-Push para a Branch (git push origin feature/AmazingFeature)
+Versionamento simplificado
 
-Abra um Pull Request
+H2 Database
+Ideal para desenvolvimento
 
-📄 Licença
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
+Não precisa instalar PostgreSQL
 
-👤 Autor
-Seu Nome
+Dados em memória (rápido)
 
-GitHub: @seu-usuario
+Pode migrar para PostgreSQL depois
 
-LinkedIn: Seu Perfil
+Stack Moderna
+Spring Boot: rápido desenvolvimento Java
 
-Email: seu.email@exemplo.com
+React + Vite: frontend performático
 
-🙏 Agradecimentos
-Spring Boot
+Tailwind CSS: estilização rápida
 
-React
+TypeScript: código mais seguro
 
-Vite
+Comandos Úteis
+Backend
+bash
+# Rodar aplicação
+./mvnw spring-boot:run
 
-Tailwind CSS
+# Executar testes
+./mvnw test
 
-Todos os colaboradores e contribuidores
+# Gerar JAR
+./mvnw clean package
+Frontend
+bash
+# Desenvolvimento
+npm run dev
 
-⭐ Suporte
-Se este projeto foi útil para você, considere dar uma ⭐ no repositório!
+# Build produção
+npm run build
 
-✨ "Transformando arte em tecnologia, e tecnologia em oportunidades" ✨
+# Preview build
+npm run preview
+Contato
+Para mais informações sobre o projeto ou demonstração completa, entre em contato.
